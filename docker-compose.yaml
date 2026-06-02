@@ -1,34 +1,75 @@
 services:
+  mongodb:
+    build: ./mongodb
+    image: mongodb:1.0
+    container_name: mongodb
+    volumes:
+      - mongodb:/data/db
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    volumes:
+      - redis:/data
+
+  mysql:
+    build: ./mysql
+    image: mysql:1.0
+    container_name: mysql
+    volumes:
+      - mysql:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: roboshop
+      RABBITMQ_DEFAULT_PASS: roboshop123
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
   catalogue:
     build: ./catalogue
-    image: blujaytech/catalogue:v2
+    image: catalogue:1.0
     container_name: catalogue
     depends_on:
-    - mongodb
+      - mongodb
+
   user:
     build: ./user
-    image: blujaytech/user:v2
+    image: user:1.0
     container_name: user
+    environment:
+      MONGO: "true"
+      REDIS_HOST: "redis"
+      MONGO_URL: "mongodb://mongodb:27017/users"
     depends_on:
-    - redis
-    - mongodb
+      - mongodb
+      - redis
+
   cart:
     build: ./cart
-    image: blujaytech/cart:v2
+    image: cart:1.0
     container_name: cart
+    environment:
+      REDIS_HOST: "redis"
+      CATALOGUE_HOST: "catalogue"
+      CATALOGUE_PORT: "8080"
     depends_on:
-    - redis
-    - catalogue
+      - redis
+      - catalogue
+
   shipping:
     build: ./shipping
-    image: blujaytech/shipping:v2
+    image: shipping:1.0
     container_name: shipping
     depends_on:
-    - mysql
-    - cart
+      - mysql
+      - cart
+
   payment:
     build: ./payment
-    image: blujaytech/payment:v2
+    image: payment:1.0
     container_name: payment
     environment:
       CART_HOST: "cart"
@@ -39,53 +80,30 @@ services:
       AMQP_USER: "roboshop"
       AMQP_PASS: "roboshop123"
     depends_on:
-    - rabbitmq
-    - cart
-    - user
+      - rabbitmq
+      - cart
+      - user
+
   frontend:
     build: ./frontend
-    image: blujaytech/frontend:v3
+    image: frontend:1.0
     container_name: frontend
     ports:
-    - "80:80"
+      - "80:80"
     depends_on:
-    - catalogue
-    - user
-    - cart
-    - shipping
-    - payment
-  mongodb:
-    build: ./mongodb # it moves to mongodb directory
-    image: blujaytech/mongodb:v2 # docker build -t joindevops/mongodb:1.0.0
-    container_name: mongodb
-    volumes:
-    - /:/data/db
-  redis:
-    image: redis:7.0
-    container_name: redis
-    volumes:
-    - redis:/data
-  mysql:
-    build: ./mysql
-    image: blujaytech/mysql:v2
-    container_name: mysql
-    volumes:
-    - mysql:/var/lib/mysql
-  rabbitmq:
-    image: rabbitmq:3
-    environment: 
-      RABBITMQ_DEFAULT_USER: roboshop
-      RABBITMQ_DEFAULT_PASS: roboshop123
-    container_name: rabbitmq
-    volumes:
-    - rabbitmq:/var/lib/rabbitmq
+      - catalogue
+      - user
+      - cart
+      - shipping
+      - payment
+
 networks:
   default:
-    driver: bridge
     name: roboshop
-    external: false # if true, you need to create network manually
+    driver: bridge
+
 volumes:
-  mongodb: # docker volume create mongodb
+  mongodb:
   redis:
   mysql:
   rabbitmq:
