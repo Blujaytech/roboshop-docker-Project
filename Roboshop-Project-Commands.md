@@ -1,8 +1,8 @@
 RoboShop Docker Deployment Commands
 1. Build Frontend Image
-``
+   
+```
 docker build -t frontend:v1 .
-
 ```
 Explanation:
 
@@ -43,6 +43,7 @@ Explanation:
 Runs the Catalogue microservice.
 Connected to the roboshop network.
 6. Start User Service
+
 ```
 docker run -d --name user --network roboshop user:v1
 ```
@@ -51,6 +52,7 @@ Explanation:
 Runs the User microservice.
 Communicates with MongoDB through the Docker network.
 7. Start Cart Service
+
 ```
 docker run -d --name cart --network roboshop cart:v1
 ```
@@ -59,22 +61,27 @@ Explanation:
 Runs the Cart microservice.
 Connected to the same network as other services.
 8. Start Shipping Service
+```
 docker run -d --name shipping --network roboshop shipping:v1
-
+```
 Explanation:
 
 Runs the Shipping microservice.
 Uses MySQL for backend data storage.
 9. Start Payment Service
-docker run -d --name payment --network roboshop payment:v1
 
+```
+docker run -d --name payment --network roboshop payment:v1
+```
 Explanation:
 
 Runs the Payment microservice.
 Handles payment processing requests.
 10. Start Frontend Service
-docker run -d --name frontend --network roboshop -p 80:80 frontend:v1
 
+```
+docker run -d --name frontend --network roboshop -p 80:80 frontend:v1
+```
 Explanation:
 
 Runs the Frontend container.
@@ -83,14 +90,20 @@ Host Port: 80
 Container Port: 80
 Makes the application accessible from the browser.
 Verify Running Containers
-docker ps
 
+```
+docker ps
+```
 Explanation:
 
 Displays all running containers.
 Access Application
-http://<EC2-Public-IP>
 
+```
+http://<EC2-Public-IP>
+```
 Example:
 
+```
 http://34.207.138.52
+```
